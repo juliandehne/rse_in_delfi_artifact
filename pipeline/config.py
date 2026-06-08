@@ -37,6 +37,14 @@ SECONDARY_DIR   = DATA / "secondary_analysis" # step 6 outputs
 # paper PDF folder. This directory is .gitignore'd and must stay out of the repo.
 PREPROCESSED_DIR = DATA / "preprocessed"
 
+# ── Test sandbox (NEVER shipped) ──────────────────────────────────────────────
+# --test-configuration writes its 5-paper outputs here so the shipped datasets in
+# data/experiments, data/intra_LLM, ... are never touched. .gitignore'd.
+TEST_DIR = DATA / "_test"
+
+# Number of papers used by --test-configuration.
+TEST_N_PAPERS = 5
+
 # ── The key shipped artifact (final aggregated labels) ────────────────────────
 FINAL_CSV = INTER_DIR / "df_llm_experiments_final_aggregated_results_prompt_template_1.csv"
 HUMAN_REANNOTATION_CSV = INTER_DIR / "df_human_reannotation_results.csv"

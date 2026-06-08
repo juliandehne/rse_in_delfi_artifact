@@ -69,6 +69,23 @@ python run_pipeline.py --run-experiments \
 # (equivalently: export SAIA_API_KEY / SAIA_API_ENDPOINT and omit the flags)
 ```
 
+## Testing the full chain on a small subset
+
+If you have the paper PDFs and a SAIA key, you can smoke-test the two resource-gated
+steps (preprocessing + experiments) on just **5 papers** without touching the
+shipped datasets — everything goes into the `data/_test/` sandbox:
+
+```bash
+pip install pymupdf openai          # optional deps needed by steps 1 & 2
+python run_pipeline.py --test-configuration \
+    --paper-folder ./papers --saia-api-key YOUR_KEY \
+    --saia-api-endpoint https://chat-ai.academiccloud.de/v1
+```
+
+Or just fill in the three variables at the top of
+[`run_test_configuration.sh`](run_test_configuration.sh) and run `bash run_test_configuration.sh`.
+By default it uses the first model only (5 API calls); pass `--models <id>` to choose another.
+
 See [`PROGRESS.md`](PROGRESS.md) for the build plan and source mapping,
 [`data/README.md`](data/README.md) for the data dictionary, and
 [`artifact-paper/`](artifact-paper/) for the LNI-formatted artifact description.

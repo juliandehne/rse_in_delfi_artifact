@@ -36,7 +36,8 @@ from pipeline.pdf_text_extraction import (
 MIN_PAGES = 3
 
 
-def run(paper_folder: Path, output_csv: Path | None = None, min_pages: int = MIN_PAGES) -> Path:
+def run(paper_folder: Path, output_csv: Path | None = None, min_pages: int = MIN_PAGES,
+        limit: int | None = None) -> Path:
     paper_folder = Path(paper_folder)
     if not paper_folder.is_dir():
         raise FileNotFoundError(f"--paper-folder not found: {paper_folder}")
@@ -46,6 +47,9 @@ def run(paper_folder: Path, output_csv: Path | None = None, min_pages: int = MIN
 
     rows = []
     pdfs = sorted(paper_folder.rglob("*.pdf"))
+    if limit is not None:
+        pdfs = pdfs[:limit]
+        print(f"  [test] limiting to first {limit} PDF(s)")
     print(f"  Found {len(pdfs)} PDF(s) under {paper_folder}")
     for pdf in pdfs:
         try:
@@ -78,8 +82,10 @@ def main() -> None:
     ap.add_argument("--output", type=Path, default=None,
                     help="Output CSV (default: data/preprocessed/delfi_paper_texts.csv).")
     ap.add_argument("--min-pages", type=int, default=MIN_PAGES)
+    ap.add_argument("--limit", type=int, default=None,
+                    help="Process only the first N PDFs (for testing).")
     args = ap.parse_args()
-    run(args.paper_folder, args.output, args.min_pages)
+    run(args.paper_folder, args.output, args.min_pages, args.limit)
 
 
 if __name__ == "__main__":

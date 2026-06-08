@@ -35,3 +35,5 @@ Thumbs.db
 # Never commit paper full texts if a reviewer drops them in locally
 papers/
 **/full_texts/
+data/preprocessed/
+data/_test/

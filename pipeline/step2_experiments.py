@@ -126,7 +126,8 @@ def classify_paper(client, row, model, system_prompt, user_prompt_template, rate
 
 def run(model: str, run_id: str, prompt_template: Path | None = None,
         papers_csv: Path | None = None, test: bool = False,
-        api_key: str | None = None, base_url: str | None = None) -> Path:
+        api_key: str | None = None, base_url: str | None = None,
+        output_dir: Path | None = None) -> Path:
     # Credentials may be passed directly (CLI flags) or via the environment.
     api_key = api_key or os.getenv("SAIA_API_KEY")
     base_url = base_url or os.getenv("SAIA_API_ENDPOINT")
@@ -167,7 +168,8 @@ def run(model: str, run_id: str, prompt_template: Path | None = None,
     annotated = annotated.drop(columns=[c for c in DROP_BEFORE_SAVE if c in annotated.columns])
 
     today = date.today().strftime("%Y-%m-%d")
-    out = config.EXPERIMENTS_DIR / f"df_full_experiment_{model}_{config.PROMPT_TEMPLATE_NAME}_{run_id}_{today}.csv"
+    out_dir = output_dir or config.EXPERIMENTS_DIR
+    out = Path(out_dir) / f"df_full_experiment_{model}_{config.PROMPT_TEMPLATE_NAME}_{run_id}_{today}.csv"
     out.parent.mkdir(parents=True, exist_ok=True)
     annotated.to_csv(out, index=False)
     print(f"  Saved {len(annotated)} rows → {out} (full-text columns dropped)")

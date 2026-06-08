@@ -60,6 +60,10 @@ def main() -> int:
                     help="SAIA API endpoint for step 2 (falls back to env SAIA_API_ENDPOINT).")
     ap.add_argument("--run-human-annotation", action="store_true",
                     help="Enable interactive step 4 (needs --paper-folder). Default: skipped.")
+    ap.add_argument("--test-configuration", action="store_true",
+                    help=f"Smoke-test the resource-gated steps (1 preprocessing + 2 experiments) "
+                         f"on the first {config.TEST_N_PAPERS} papers, into the data/_test sandbox "
+                         f"(shipped datasets untouched). Needs --paper-folder and a SAIA key.")
     ap.add_argument("--only", type=int, choices=[1, 2, 3, 4, 5, 6], default=None,
                     help="Run only this one step (overrides the default selection).")
     ap.add_argument("--models", nargs="+", default=None,
@@ -67,6 +71,38 @@ def main() -> int:
     ap.add_argument("--no-guard", action="store_true",
                     help="Skip the no-full-text guard (not recommended).")
     args = ap.parse_args()
+
+    # --- Test configuration: tiny end-to-end check of the resource-gated steps ---
+    if args.test_configuration:
+        if args.paper_folder is None:
+            ap.error("--test-configuration needs --paper-folder (the paper PDFs).")
+        try:
+            from pipeline import step1_preprocessing, step2_experiments
+        except ImportError as exc:
+            ap.error(f"--test-configuration needs the optional deps for steps 1 & 2 "
+                     f"(pip install pymupdf openai): {exc}")
+        n = config.TEST_N_PAPERS
+        sandbox = config.TEST_DIR
+        papers_csv = sandbox / "preprocessed" / "delfi_paper_texts.csv"
+        exp_dir = sandbox / "experiments"
+        models = args.models or [next(iter(config.MODELS.values()))]  # default: first model only
+
+        _banner(f"TEST CONFIGURATION — {n} papers → {sandbox} (shipped data untouched)")
+        _banner(f"Step 1 — Preprocessing (first {n} PDFs)")
+        step1_preprocessing.run(args.paper_folder, output_csv=papers_csv, limit=n)
+
+        _banner(f"Step 2 — Experiments ({n} papers, run_1, {len(models)} model(s))")
+        for model in models:
+            step2_experiments.run(model, "run_1", papers_csv=papers_csv, test=True,
+                                  api_key=args.saia_api_key, base_url=args.saia_api_endpoint,
+                                  output_dir=exp_dir)
+
+        _banner("Test configuration complete")
+        print(f"  Preprocessed: {papers_csv}")
+        print(f"  Annotations:  {exp_dir}")
+        print("  This validated steps 1 & 2 on a small subset. The analysis steps "
+              "(3, 5, 6) are validated by the normal default run on the shipped data.")
+        return 0
 
     # Decide which steps run.
     if args.only is not None:
