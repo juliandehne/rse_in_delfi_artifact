@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# Secrets / tokens (SAIA / KISSKI)
+.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Never commit paper full texts if a reviewer drops them in locally
+papers/
+**/full_texts/

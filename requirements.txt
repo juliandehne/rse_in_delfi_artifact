@@ -1,0 +1,26 @@
+# rse_in_delfi_artifact dependencies
+# Python 3.11+ recommended
+# Install with: pip install -r requirements.txt
+
+# Data processing
+pandas>=2.2.0
+numpy>=2.0.0
+
+# Reading the reference-study evaluation spreadsheet (.xlsx)
+openpyxl>=3.1.0
+
+# Figures (descriptive analysis)
+matplotlib>=3.8.0
+
+# Inter-coder reliability metrics
+scikit-learn>=1.5.0
+krippendorff>=0.6.0
+statsmodels>=0.14.0
+
+# PDF text extraction — ONLY needed to re-run step 1 (preprocessing) with the paper folder.
+# PyMuPDF is AGPL-3.0 licensed: https://github.com/pymupdf/pymupdf
+pymupdf>=1.24.0
+
+# Step 2 (experiments) additionally needs an OpenAI-compatible client for the SAIA/KISSKI API
+# and a token; it is skipped by default. Uncomment if you re-run experiments:
+# openai>=1.0.0
