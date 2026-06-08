@@ -103,15 +103,25 @@ and fails if a banned text column appears or any cell exceeds the length thresho
 ## CHECKLIST  (update me!)
 
 - [x] Submodule created under publications/ (SSH), main branch
-- [x] Bootstrap: README, PROGRESS, requirements, .gitignore  ← committing now
-- [ ] data/ populated from origin/main (with no-fulltext strip + assertion)
-- [ ] pipeline/step3_descriptive_analysis.py (paths rewired to data/)
-- [ ] pipeline/step5_label_aggregation.py (intra+inter, paths rewired)
-- [ ] pipeline/step6_secondary_analysis.py (from biases.ipynb)
-- [ ] pipeline/step1_preprocessing.py (skip default; --paper-folder)
-- [ ] pipeline/step2_experiments.py (skip default; needs token)
-- [ ] pipeline/step4_human_annotation.py (notebook → console; skip default)
-- [ ] run_pipeline.py management script (skip defaults: step1, step2, step4)
-- [ ] artifact-paper/ LNI LaTeX
-- [ ] smoke-test runnable steps (3,5,6) against shipped data/
+- [x] Bootstrap: README, PROGRESS, requirements, .gitignore
+- [x] data/ populated from origin/main (36 MB); fulltext_guard passes
+- [x] pipeline/config.py (central paths) + fulltext_guard.py
+- [x] pipeline/step3_descriptive_analysis.py — TESTED (figures produced)
+- [x] pipeline/step5_label_aggregation.py (intra+inter) + reference_validation.py — TESTED (final 798×185)
+- [x] pipeline/step6_secondary_analysis.py — TESTED (combined labels + trends)
+- [x] pipeline/step1_preprocessing.py (skip default; --paper-folder) — verbatim extractor copied
+- [x] pipeline/step2_experiments.py (skip default; needs token; reads step-1 CSV not MySQL)
+- [x] pipeline/step4_human_annotation.py (notebook → console; skip default) — TESTED (subset 29/32)
+- [x] run_pipeline.py management script (skip defaults: step1, step2, step4) — TESTED end-to-end
+- [ ] artifact-paper/ LNI LaTeX   ← IN PROGRESS
+- [x] smoke-test runnable steps (3,5,6) against shipped data/
 - [ ] commit + push artifact repo; (ask before bumping parent submodule pointers)
+
+### Verified facts (for resume)
+- `publications/` is itself a submodule (git@github.com:juliandehne/publications.git); the
+  artifact submodule was registered THERE, not in the top-level juliandehne.github.io repo.
+- Source full-text columns are exactly: `abstract`, `text`, `references` (dropped in original
+  experiments.py "for legal reasons"). fulltext_guard bans these + length>5000.
+- venv at repo root (.venv, py3.12); installed: openpyxl scikit-learn krippendorff statsmodels scipy tabulate.
+  pymupdf is NOT installed (only step 1 needs it) — default run works without it (lazy import).
+- Final df shape 798×185; disagreements resolved by human: prozess 0, lernende 6, design 17, bildungstech 9.

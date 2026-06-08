@@ -1,0 +1,5 @@
+label,type,krippendorff_alpha,fleiss_kappa,gwet_ac1
+label_forschungssoftware,binary,-0.02,-0.04,0.92
+label_software_evaluation,binary,0.0,-0.02,0.96
+label_lehr_lern_setting,binary,1.0,1.0,1.0
+Average (binary),,0.33,0.313,0.96

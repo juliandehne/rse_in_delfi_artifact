@@ -1,0 +1,25 @@
+| label                               | llm     |   mean | n_neg1   | pct_neg1   | n_0   | pct_0   | n_pos1   | pct_pos1   |
+|:------------------------------------|:--------|-------:|:---------|:-----------|:------|:--------|:---------|:-----------|
+| label_prozess_paradigma             | mistral |  0.421 | 13.0     | 1.6        | 436.0 | 54.6    | 349.0    | 43.7       |
+| label_prozess_paradigma             | llama   |  0.663 | 3.0      | 0.4        | 263.0 | 33.0    | 532.0    | 66.7       |
+| label_prozess_paradigma             | gemma   |  0.41  | 5.0      | 0.6        | 461.0 | 57.8    | 332.0    | 41.6       |
+| label_lernende_paradigma            | mistral |  0.323 | 93.0     | 11.7       | 354.0 | 44.4    | 351.0    | 44.0       |
+| label_lernende_paradigma            | llama   |  0.45  | 56.0     | 7.0        | 327.0 | 41.0    | 415.0    | 52.0       |
+| label_lernende_paradigma            | gemma   |  0.529 | 47.0     | 5.9        | 282.0 | 35.3    | 469.0    | 58.8       |
+| label_design_paradigma              | mistral |  0.5   | 163.0    | 20.4       | 73.0  | 9.1     | 562.0    | 70.4       |
+| label_design_paradigma              | llama   |  0.436 | 144.0    | 18.0       | 162.0 | 20.3    | 492.0    | 61.7       |
+| label_design_paradigma              | gemma   |  0.133 | 200.0    | 25.1       | 292.0 | 36.6    | 306.0    | 38.3       |
+| label_bildungstechnologie_paradigma | mistral |  0.09  | 138.0    | 17.3       | 450.0 | 56.4    | 210.0    | 26.3       |
+| label_bildungstechnologie_paradigma | llama   |  0.18  | 172.0    | 21.6       | 310.0 | 38.8    | 316.0    | 39.6       |
+| label_bildungstechnologie_paradigma | gemma   |  0.391 | 25.0     | 3.1        | 436.0 | 54.6    | 337.0    | 42.2       |
+| Overall mean (all ordinal)          | mistral |  0.334 | —        | —          | —     | —       | —        | —          |
+| Overall mean (all ordinal)          | llama   |  0.432 | —        | —          | —     | —       | —        | —          |
+| Overall mean (all ordinal)          | gemma   |  0.366 | —        | —          | —     | —       | —        | —          |
+
+## Interpretation
+
+- Across all labels: **Llama is the most liberal** annotator (Mistral & Gemma are almost identical)
+- Patterns are label-dependent:
+  - **Gemma** most liberal for: *Bildungstechnologie* (by far) + *Lernende* (less)
+  - **Llama** most liberal for: *Prozess*
+  - **Mistral** most liberal for: *Design*

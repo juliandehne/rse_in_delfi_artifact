@@ -1,0 +1,12 @@
+| label                               | type    |   krippendorff_alpha | fleiss_kappa   |
+|:------------------------------------|:--------|---------------------:|:---------------|
+| label_forschungssoftware            | binary  |                 1    | 1.00           |
+| label_software_evaluation           | binary  |                 0.98 | 0.98           |
+| label_lehr_lern_setting             | binary  |                 0.95 | 0.95           |
+| label_prozess_paradigma             | ordinal |                 0.98 | —              |
+| label_lernende_paradigma            | ordinal |                 0.98 | —              |
+| label_design_paradigma              | ordinal |                 0.97 | —              |
+| label_bildungstechnologie_paradigma | ordinal |                 0.94 | —              |
+| Average (binary)                    |         |                 0.98 | 0.98           |
+| Average (ordinal)                   |         |                 0.97 | —              |
+| Average (all labels)                |         |                 0.97 | —              |
