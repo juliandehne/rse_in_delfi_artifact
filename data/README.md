@@ -1,4 +1,4 @@
-# data/ — intermediate products
+re# data/ — intermediate products
 
 All inputs and intermediate products needed to reproduce the analysis **without**
 the paper PDFs or an LLM API token. **No copyrighted paper full text is stored here**

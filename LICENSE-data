@@ -1,0 +1,19 @@
+Data set license — Creative Commons Attribution 4.0 International (CC-BY-4.0)
+
+The data set shipped in the data/ directory of this repository (LLM annotation
+runs, aggregated labels, human re-annotations, the reference-study evaluation,
+and derived figures/tables) is licensed under the Creative Commons Attribution
+4.0 International License.
+
+You are free to share and adapt the data for any purpose, even commercially,
+provided you give appropriate credit (cite this artifact and the accompanying
+DELFI 2026 paper; see CITATION.cff).
+
+Full license text: https://creativecommons.org/licenses/by/4.0/legalcode
+Human-readable summary: https://creativecommons.org/licenses/by/4.0/
+
+IMPORTANT SCOPE NOTE
+This license applies ONLY to the derived data described above. It does NOT and
+cannot grant any rights over the underlying copyrighted DELFI paper texts, which
+are NOT contained in this repository (see pipeline/fulltext_guard.py). Only
+bibliographic metadata, model/human labels and short justifications are released.

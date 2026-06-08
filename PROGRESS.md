@@ -1,4 +1,4 @@
-# PROGRESS / BUILD PLAN — rse_in_delfi_artifact
+/# PROGRESS / BUILD PLAN — rse_in_delfi_artifact
 
 > This file exists so the build can be **resumed if the session is interrupted**.
 > It records the goal, the source mapping, decisions made, and a live checklist.

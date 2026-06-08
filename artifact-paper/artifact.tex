@@ -45,6 +45,13 @@ run it, the reproducibility guarantees, and the constraints that motivated its
 design for the artifact-evaluation track.
 \end{abstract}
 
+{\small
+\noindent\textbf{Resource Type:} Software (with an accompanying data set)\\
+\noindent\textbf{License:} Code: MIT; Data: CC-BY-4.0\\
+\noindent\textbf{Stable ID:} \emph{archival DOI to be minted on Zenodo before camera-ready} (e.g.\ \texttt{10.5281/zenodo.XXXXXXX})\\
+\noindent\textbf{Repository:} \url{https://github.com/juliandehne/rse_in_delfi_artifact}
+\par}
+
 \begin{keywords}
 Research Software Engineering \and replication \and large language models \and
 inter-coder reliability \and reproducibility \and DELFI
@@ -65,21 +72,13 @@ is explicitly built so that the two paper-dependent steps and the API-dependent
 step can be skipped while still reproducing every published number and figure.
 
 \section{Artifact overview}
-The artifact is a Python package (\texttt{pipeline/}) plus shipped intermediate
-data (\texttt{data/}) and this paper (\texttt{artifact-paper/}). It is database-free:
-whereas the original study stored papers in MySQL, every step here reads and writes
-CSV files under \texttt{data/}. We claim the \emph{Available} and \emph{Reusable}
-properties: the package is permanently archived, documented, and parameterised so
-that it can also be re-run on new inputs.
-
-\section{Repository structure}
-\begin{verbatim}
-rse_in_delfi_artifact/
-  run_pipeline.py         # management script (skip-aware)
-  pipeline/               # config + the six steps + full-text guard
-  data/                   # shipped intermediate products (no full texts)
-  artifact-paper/         # this LNI document
-\end{verbatim}
+The artifact is a Python package (\texttt{pipeline/}: \texttt{config}, the six steps
+and a full-text guard), the management script \texttt{run\_pipeline.py}, the shipped
+intermediate data (\texttt{data/}) and this paper (\texttt{artifact-paper/}). It is
+database-free: whereas the original study stored papers in MySQL, every step reads
+and writes CSV files under \texttt{data/}. We target the \emph{Available} and
+\emph{Reusable} badges: the package is archived, documented and parameterised so it
+can be re-run on new inputs.
 
 \section{The pipeline}
 The pipeline has six steps (Table~\ref{tab:steps}). Steps~3, 5 and~6 run from the
@@ -104,19 +103,15 @@ shipped data and constitute the default reviewer run; steps~1, 2 and~4 are
 \end{tabular}
 \end{table}
 
-\paragraph{Data flow.} Step~1 extracts text from the paper PDFs; step~2 sends each
-paper to three LLMs (three runs each) via the KISSKI SAIA API and stores the
-labels and justifications. Step~5a aggregates the three runs per model
-(majority vote) and computes intra-model ICR; step~4 elicits a human label for the
-papers on which all three models disagree; step~5b aggregates across models
-(majority vote, ties broken by the human label), reports cross-model ICR and
-validates against the 2017 reference study. Steps~3 and~6 produce the figures and
-the secondary bias analysis from the final aggregated labels.
-
-\paragraph{Management script.} \texttt{run\_pipeline.py} runs the default steps,
-accepts \texttt{-{}-paper-folder} as a parameter to enable steps~1 and~4, and
-\texttt{-{}-run-experiments} (with a SAIA token in the environment) to enable
-step~2. A no-full-text guard runs before and after every invocation.
+\paragraph{Data flow.} Step~1 extracts text from the PDFs; step~2 annotates each
+paper with three LLMs (three runs each) via the SAIA API. Step~5a aggregates the
+runs per model (majority vote) with intra-model ICR; step~4 elicits a human label
+where all three models disagree; step~5b aggregates across models (majority vote,
+ties broken by the human label), reports cross-model ICR and validates against the
+2017 reference study. Steps~3 and~6 produce the figures and the bias analysis.
+\texttt{run\_pipeline.py} runs the default steps; \texttt{-{}-paper-folder} enables
+steps~1/4 and \texttt{-{}-run-experiments} (with a SAIA token) enables step~2. The
+no-full-text guard runs before and after every invocation.
 
 \section{Reproducing the results}
 \begin{verbatim}
@@ -128,39 +123,70 @@ This regenerates \texttt{data/inter\_LLM/df\_llm\_experiments\_final\_aggregated
 and the combined-label bias tables.
 
 \section{Reproduced results}
-Table~\ref{tab:icr} shows the cross-model ICR recomputed by step~5 on the shipped
-data, reported as Krippendorff's $\alpha$~\cite{krippendorff2004reliability} (and,
-for binary labels, complemented by Gwet's AC1~\cite{gwet2008ac1} in the released
-tables). All three models disagreed completely on 0, 6, 17 and 9 papers for the
-process, outcome, design and acceptance paradigms respectively; those cases were
-resolved with the shipped human labels.
-
-\begin{table}[h]
-\centering
-\caption{Cross-model inter-coder reliability (Krippendorff's $\alpha$), recomputed.}
-\label{tab:icr}
-\begin{tabular}{lc}
-\toprule
-Label group & Krippendorff's $\alpha$ \\
-\midrule
-Binary labels (average)  & 0.51 \\
-Ordinal labels (average) & 0.66 \\
-All labels (average)     & 0.60 \\
-\midrule
-Reference-study validation (binary, average) & 0.33 \\
-\bottomrule
-\end{tabular}
-\end{table}
+Step~5, run on the shipped data, recomputes the cross-model inter-coder reliability
+as Krippendorff's $\alpha$~\cite{krippendorff2004reliability} (binary labels
+complemented by Gwet's AC1~\cite{gwet2008ac1} in the released tables): average
+$\alpha=0.51$ for the binary labels, $0.66$ for the ordinal labels and $0.60$
+overall, with $\alpha=0.33$ against the 2017 reference study (binary). All three
+models disagreed completely on 0, 6, 17 and 9 papers for the process, outcome,
+design and acceptance paradigms respectively; those cases were resolved with the
+shipped human labels.
 
 \section{Data and the no-full-text guarantee}
 The released data contain only labels, LLM/human justifications and bibliographic
 metadata. The original annotation script dropped the \texttt{abstract},
 \texttt{text} and \texttt{references} columns before persisting results ``for legal
-reasons''; the artifact preserves this invariant and enforces it programmatically.
+reasons''; the artifact preserves and enforces this invariant programmatically:
 \texttt{pipeline/fulltext\_guard.py} scans every shipped table and fails if a banned
-full-text column is present or if any cell exceeds a length threshold incompatible
-with a short justification. Step~1's full-text output is written only to a
-\texttt{.gitignore}'d directory.
+full-text column is present or any cell exceeds a length threshold incompatible with
+a short justification. Step~1's full-text output goes only to a \texttt{.gitignore}'d
+directory.
+
+\section{LLM documentation}
+Per the DELFI AET LLM policy, Table~\ref{tab:llms} lists the three open-weight
+models used in step~2, all served through the KISSKI SAIA API. Each model was run
+three times ($\mathrm{run}\_1$--$3$). All runs used identical, deterministic
+inference parameters: \textbf{temperature}~$=0$, \textbf{top\_p}~$=1.0$,
+\textbf{seed}~$=42$, no \textbf{stop sequences}, no explicit \textbf{max-tokens}
+cap (provider default), a 300\,s request timeout, and no function/tool calling
+(plain JSON-mode prompting). The models are open-weight, so a closed-weight
+snapshot date does not apply; the snapshot is pinned by the version in the model
+identifier, and the run dates are recorded in the result filenames.
+
+\begin{table}[h]
+\centering
+\caption{LLM models and versions used for annotation (KISSKI SAIA API).}
+\label{tab:llms}
+\begin{tabular}{lll}
+\toprule
+Short name & Model identifier (version) & Runs \\
+\midrule
+mistral & \texttt{mistral-large-3-675b-instruct-2512} & 3 \\
+llama   & \texttt{llama-3.1-sauerkrautlm-70b-instruct} & 3 \\
+gemma   & \texttt{gemma-3-27b-it} & 3 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Prompts.} The complete prompt --- the system prompt and the user-prompt
+template with its \texttt{\{row[...]\}} placeholders --- is shipped verbatim at
+\texttt{data/prompt\_templates/prompt\_template\_1.md}. The placeholders
+\texttt{title}, \texttt{authors} and \texttt{year} resolve to public bibliographic
+metadata; the placeholders \texttt{abstract}, \texttt{text} and \texttt{references}
+resolve to the copyrighted paper content and are therefore the \emph{only} part of
+a fully resolved prompt that cannot be redistributed. The substitution logic
+(\texttt{pipeline/step2\_experiments.py}, \texttt{fill\_user\_prompt}) is included so
+the resolved prompt can be regenerated by anyone holding the paper PDFs.
+
+\section{FAIR preparation and targeted badges}
+The artifact targets the \textbf{Available} and \textbf{Reusable} badges:
+\emph{Findable/Available} via a stable archival DOI (Zenodo, from a tagged release)
+and machine-readable metadata (\texttt{CITATION.cff}); \emph{Accessible} via open
+licensing (MIT code, CC-BY-4.0 data; \texttt{LICENSE}, \texttt{LICENSE-data});
+\emph{Interoperable} via open CSV with a documented data dictionary
+(\texttt{data/README.md}); and \emph{Reusable} via a parameterised, documented,
+re-runnable pipeline. No personal or human-subject data are released, so no further
+DSGVO/ethics statement beyond the no-full-text guarantee is required.
 
 \section{Requirements and environment}
 Python~3.11+, \texttt{pandas}, \texttt{numpy}, \texttt{scikit-learn},

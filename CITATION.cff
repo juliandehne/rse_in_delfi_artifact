@@ -1,0 +1,45 @@
+cff-version: 1.2.0
+message: "If you use this artifact, please cite it and the accompanying DELFI 2026 paper."
+title: "rse_in_delfi_artifact: A reproducible, database-free pipeline for detecting research-software paradigms in the DELFI community"
+abstract: >-
+  Replication/artifact package for the DELFI 2026 paper "Research Software
+  Engineering in the Learning Technologies: a replication study of research
+  paradigms in the DELFI community". Ships all intermediate products and a
+  six-step, file-based pipeline that reproduces the label aggregation, ICR
+  metrics, figures and secondary analysis without the copyrighted paper PDFs or
+  an LLM API token. No paper full text is included.
+type: software
+authors:
+  - given-names: Julian
+    family-names: Dehne
+    orcid: "https://orcid.org/0000-0001-9265-9619"
+    affiliation: "University of Potsdam"
+  - given-names: Fabian
+    family-names: Lochner
+  - given-names: Axel
+    family-names: Wiepke
+    affiliation: "University of Potsdam"
+version: "1.0.0"
+date-released: "2026-06-08"
+license: MIT
+license-url: "https://opensource.org/licenses/MIT"
+repository-code: "https://github.com/juliandehne/rse_in_delfi_artifact"
+keywords:
+  - research software engineering
+  - replication
+  - large language models
+  - inter-coder reliability
+  - reproducibility
+  - DELFI
+references:
+  - type: conference-paper
+    title: "Research Software Engineering in the Learning Technologies: a replication study of research paradigms in the DELFI community"
+    year: 2026
+    collection-title: "DELFI 2026 -- Die 24. Fachtagung Bildungstechnologien der Gesellschaft für Informatik (GI)"
+    authors:
+      - given-names: Julian
+        family-names: Dehne
+      - given-names: Fabian
+        family-names: Lochner
+      - given-names: Axel
+        family-names: Wiepke
