@@ -71,9 +71,12 @@ python run_pipeline.py --run-experiments \
 
 ## Testing the full chain on a small subset
 
-If you have the paper PDFs and a SAIA key, you can smoke-test the two resource-gated
-steps (preprocessing + experiments) on just **5 papers** without touching the
-shipped datasets — everything goes into the `data/_test/` sandbox:
+If you have the paper PDFs and a SAIA key, you can smoke-test the resource-gated
+pipeline on just **5 papers** without touching the shipped datasets — everything
+goes into a throwaway `tmp/` folder (outside `data/`). It mirrors the real
+configuration: the **3
+study models, 3 runs each**, followed by intra-model **majority voting** (≈45 API
+calls):
 
 ```bash
 pip install pymupdf openai          # optional deps needed by steps 1 & 2
@@ -82,9 +85,13 @@ python run_pipeline.py --test-configuration \
     --saia-api-endpoint https://chat-ai.academiccloud.de/v1
 ```
 
-Or just fill in the three variables at the top of
+Or just fill in the variables at the top of
 [`run_test_configuration.sh`](run_test_configuration.sh) and run `bash run_test_configuration.sh`.
-By default it uses the first model only (5 API calls); pass `--models <id>` to choose another.
+Pass `--models <id>` to restrict to one model.
+
+> Note: live runs use the **current** model IDs — the Llama model is
+> `llama-3.3-70b-instruct` (the `llama-3.1-sauerkrautlm-70b-instruct` used for the
+> shipped labels was deprecated by the provider; see `pub_rse_methodology/ieee.qmd`).
 
 See [`PROGRESS.md`](PROGRESS.md) for the build plan and source mapping,
 [`data/README.md`](data/README.md) for the data dictionary, and

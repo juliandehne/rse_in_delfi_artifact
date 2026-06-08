@@ -77,6 +77,8 @@ def main() -> int:
         if args.paper_folder is None:
             ap.error("--test-configuration needs --paper-folder (the paper PDFs).")
         try:
+            # step5_label_aggregation is already imported at module level; importing
+            # it here too would shadow it and break the default path (UnboundLocalError).
             from pipeline import step1_preprocessing, step2_experiments
         except ImportError as exc:
             ap.error(f"--test-configuration needs the optional deps for steps 1 & 2 "
@@ -85,23 +87,38 @@ def main() -> int:
         sandbox = config.TEST_DIR
         papers_csv = sandbox / "preprocessed" / "delfi_paper_texts.csv"
         exp_dir = sandbox / "experiments"
-        models = args.models or [next(iter(config.MODELS.values()))]  # default: first model only
+        # Default to all three study models (current IDs); honour --models if given.
+        models = args.models or list(config.LIVE_MODELS.values())
+        runs = [f"run_{i}" for i in range(1, config.N_RUNS + 1)]
 
-        _banner(f"TEST CONFIGURATION — {n} papers → {sandbox} (shipped data untouched)")
+        _banner(f"TEST CONFIGURATION — {n} papers, {len(models)} models x {len(runs)} runs "
+                f"→ {sandbox} (shipped data untouched)")
         _banner(f"Step 1 — Preprocessing (first {n} PDFs)")
         step1_preprocessing.run(args.paper_folder, output_csv=papers_csv, limit=n)
 
-        _banner(f"Step 2 — Experiments ({n} papers, run_1, {len(models)} model(s))")
+        _banner(f"Step 2 — Experiments ({n} papers x {len(models)} models x {len(runs)} runs)")
         for model in models:
-            step2_experiments.run(model, "run_1", papers_csv=papers_csv, test=True,
-                                  api_key=args.saia_api_key, base_url=args.saia_api_endpoint,
-                                  output_dir=exp_dir)
+            for run_id in runs:
+                step2_experiments.run(model, run_id, papers_csv=papers_csv, test=True,
+                                      api_key=args.saia_api_key, base_url=args.saia_api_endpoint,
+                                      output_dir=exp_dir)
+
+        # Exercise intra-model majority voting on the sandbox outputs. Point the
+        # aggregation at the sandbox and at the live model IDs just used.
+        _banner("Step 5a — Intra-LLM majority voting (across the runs, per model)")
+        config.EXPERIMENTS_DIR = exp_dir
+        config.INTRA_DIR = sandbox / "intra_LLM"
+        config.MODELS = {short: mid for short, mid in config.LIVE_MODELS.items()
+                         if mid in models} or {m: m for m in models}
+        step5_label_aggregation.run_intra()
 
         _banner("Test configuration complete")
-        print(f"  Preprocessed: {papers_csv}")
-        print(f"  Annotations:  {exp_dir}")
-        print("  This validated steps 1 & 2 on a small subset. The analysis steps "
-              "(3, 5, 6) are validated by the normal default run on the shipped data.")
+        print(f"  Preprocessed:      {papers_csv}")
+        print(f"  Annotations:       {exp_dir}  ({len(models)} models x {len(runs)} runs)")
+        print(f"  Intra aggregation: {config.INTRA_DIR}  (majority vote across runs)")
+        print("  This validated steps 1, 2 and intra-model majority voting on a small")
+        print("  subset. Cross-model voting (5b) and the analysis steps (3, 6) are")
+        print("  validated by the normal default run on the full shipped data.")
         return 0
 
     # Decide which steps run.

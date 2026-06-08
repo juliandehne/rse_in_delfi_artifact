@@ -65,11 +65,11 @@ validating the result against the earlier human-coded reference study. This arti
 the computation} behind those results so that a reviewer can re-run the analysis
 end-to-end on a laptop in minutes.
 
-The central design constraint is legal: the analyzed DELFI papers are copyrighted
-and may not be redistributed. The artifact therefore ships only derived data
-(LLM labels, justifications, human re-annotations and bibliographic metadata) and
-is explicitly built so that the two paper-dependent steps and the API-dependent
-step can be skipped while still reproducing every published number and figure.
+The central design constraint is legal: the analyzed DELFI papers are copyrighted,
+so the artifact ships only derived data (labels, justifications, human
+re-annotations, bibliographic metadata) and is built so the paper- and
+API-dependent steps are optional while every published number and figure stays
+reproducible.
 
 \section{Artifact overview}
 The primary artifact is the dataset collection under \texttt{data/} (enumerated in
@@ -138,6 +138,11 @@ full-text column is present or any cell exceeds a length threshold incompatible 
 a short justification. Step~1's full-text output goes only to a \texttt{.gitignore}'d
 directory.
 
+The complete \textbf{codebook / data dictionary} is in \texttt{data/README.md}: it
+documents every column (name, type, value range, allowed values, missing-value
+coding), the column-name grammar, the data's provenance, and the (partially
+synthetic) LLM generation method for regenerating the labels.
+
 \section{LLM documentation}
 Per the DELFI AET LLM policy, Table~\ref{tab:llms} lists the three open-weight
 models used in step~2, all served through the KISSKI SAIA API. Each model was run
@@ -179,9 +184,8 @@ The artifact targets the \textbf{Available} and \textbf{Reusable} badges:
 \emph{Findable/Available} via a stable archival DOI (Zenodo, from a tagged release)
 and machine-readable metadata (\texttt{CITATION.cff}); \emph{Accessible} via open
 licensing (MIT code, CC-BY-4.0 data; \texttt{LICENSE}, \texttt{LICENSE-data});
-\emph{Interoperable} via open CSV with a documented data dictionary
-(\texttt{data/README.md}); and \emph{Reusable} via a parameterised, documented,
-re-runnable pipeline. No personal or human-subject data are released, so no further
+\emph{Interoperable} via open CSV with the documented codebook above; and
+\emph{Reusable} via a parameterised, documented, re-runnable pipeline. No personal or human-subject data are released, so no further
 DSGVO/ethics statement beyond the no-full-text guarantee is required.
 
 \section{Requirements and environment}
@@ -192,10 +196,9 @@ re-run step~1, and an OpenAI-compatible client plus a SAIA token only to re-run
 step~2.
 
 \section{Limitations}
-Steps~1 and~2 cannot be exercised by reviewers without the copyrighted PDFs and an
-API token; their outputs are shipped and verified downstream instead. LLM
-annotations are sampled at temperature~0 with a fixed seed, but exact
-reproducibility of step~2 ultimately depends on the provider's model snapshots.
+Steps~1 and~2 need the copyrighted PDFs and an API token; their outputs are shipped
+and verified downstream instead. Exact reproduction of step~2 ultimately depends on
+the provider's model snapshots (temperature~0 and a fixed seed notwithstanding).
 
 \nocite{rseInDelfiArtifact}
 \printbibliography

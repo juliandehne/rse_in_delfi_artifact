@@ -36,4 +36,6 @@ Thumbs.db
 papers/
 **/full_texts/
 data/preprocessed/
-data/_test/
+
+# Test-configuration scratch output (never part of the dataset)
+tmp/

@@ -38,9 +38,10 @@ SECONDARY_DIR   = DATA / "secondary_analysis" # step 6 outputs
 PREPROCESSED_DIR = DATA / "preprocessed"
 
 # ── Test sandbox (NEVER shipped) ──────────────────────────────────────────────
-# --test-configuration writes its 5-paper outputs here so the shipped datasets in
-# data/experiments, data/intra_LLM, ... are never touched. .gitignore'd.
-TEST_DIR = DATA / "_test"
+# --test-configuration writes EVERYTHING (preprocessed texts, annotations, intra
+# aggregation) under this temp folder — OUTSIDE data/ — so the published artifact
+# dataset is never populated by a test run. .gitignore'd.
+TEST_DIR = ROOT / "tmp" / "test_run"
 
 # Number of papers used by --test-configuration.
 TEST_N_PAPERS = 5
@@ -52,12 +53,28 @@ HUMAN_REANNOTATION_CSV = INTER_DIR / "df_human_reannotation_results.csv"
 # ── Models / template ─────────────────────────────────────────────────────────
 PROMPT_TEMPLATE_NAME = "prompt_template_1"
 
-# short name -> full model id (order matters: mistral, llama, gemma)
+# short name -> full model id (order matters: mistral, llama, gemma).
+# These IDs match the SHIPPED experiment files in data/experiments/ and are what
+# step 5 uses to read them. Do NOT change them, or the shipped data won't be found.
 MODELS = {
     "mistral": "mistral-large-3-675b-instruct-2512",
     "llama":   "llama-3.1-sauerkrautlm-70b-instruct",
     "gemma":   "gemma-3-27b-it",
 }
+
+# Current model IDs for NEW annotation runs against the live SAIA API (step 2 /
+# --test-configuration). The Llama model was upgraded from
+# llama-3.1-sauerkrautlm-70b-instruct to llama-3.3-70b-instruct after the provider
+# deprecated the former (see the RIGHT/IEEE companion paper, pub_rse_methodology/ieee.qmd).
+# The shipped labels still use the old ID above; live re-runs must use these.
+LIVE_MODELS = {
+    "mistral": "mistral-large-3-675b-instruct-2512",
+    "llama":   "llama-3.3-70b-instruct",
+    "gemma":   "gemma-3-27b-it",
+}
+
+# Repeated runs per model; majority vote across runs (intra) and across models (inter).
+N_RUNS = 3
 
 # ── Label column definitions (shared across steps) ────────────────────────────
 BINARY_COLS = [
