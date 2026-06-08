@@ -54,6 +54,10 @@ def main() -> int:
                     help="Enable step 1 (needs --paper-folder). Default: skipped.")
     ap.add_argument("--run-experiments", action="store_true",
                     help="Enable step 2 (needs a SAIA API token). Default: skipped.")
+    ap.add_argument("--saia-api-key", default=None,
+                    help="SAIA API key for step 2 (falls back to env SAIA_API_KEY).")
+    ap.add_argument("--saia-api-endpoint", default=None,
+                    help="SAIA API endpoint for step 2 (falls back to env SAIA_API_ENDPOINT).")
     ap.add_argument("--run-human-annotation", action="store_true",
                     help="Enable interactive step 4 (needs --paper-folder). Default: skipped.")
     ap.add_argument("--only", type=int, choices=[1, 2, 3, 4, 5, 6], default=None,
@@ -93,7 +97,9 @@ def main() -> int:
         models = args.models or list(config.MODELS.values())
         for model in models:
             for run_id in ("run_1", "run_2", "run_3"):
-                step2_experiments.run(model, run_id)
+                step2_experiments.run(model, run_id,
+                                      api_key=args.saia_api_key,
+                                      base_url=args.saia_api_endpoint)
 
     # Step 5 is split so human annotation (step 4) can slot between intra and inter.
     if run5:

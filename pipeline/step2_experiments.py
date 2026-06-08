@@ -125,14 +125,17 @@ def classify_paper(client, row, model, system_prompt, user_prompt_template, rate
 
 
 def run(model: str, run_id: str, prompt_template: Path | None = None,
-        papers_csv: Path | None = None, test: bool = False) -> Path:
-    api_key = os.getenv("SAIA_API_KEY")
-    base_url = os.getenv("SAIA_API_ENDPOINT")
+        papers_csv: Path | None = None, test: bool = False,
+        api_key: str | None = None, base_url: str | None = None) -> Path:
+    # Credentials may be passed directly (CLI flags) or via the environment.
+    api_key = api_key or os.getenv("SAIA_API_KEY")
+    base_url = base_url or os.getenv("SAIA_API_ENDPOINT")
     if not api_key or not base_url:
         raise EnvironmentError(
-            "Step 2 needs a SAIA API token: set SAIA_API_KEY and SAIA_API_ENDPOINT. "
-            "Reviewers without a token should keep this step skipped (the shipped "
-            "data/experiments/*.csv are this step's outputs).")
+            "Step 2 needs a SAIA API token. Provide it either as parameters "
+            "(--saia-api-key / --saia-api-endpoint) or as environment variables "
+            "(SAIA_API_KEY / SAIA_API_ENDPOINT). Reviewers without a token keep this "
+            "step skipped — the shipped data/experiments/*.csv are this step's outputs.")
     try:
         from openai import OpenAI
     except ImportError as exc:
@@ -177,9 +180,14 @@ def main() -> None:
     ap.add_argument("--run", default="run_1")
     ap.add_argument("--prompt-template", type=Path, default=None)
     ap.add_argument("--papers-csv", type=Path, default=None)
+    ap.add_argument("--saia-api-key", default=None,
+                    help="SAIA API key (falls back to env SAIA_API_KEY).")
+    ap.add_argument("--saia-api-endpoint", default=None,
+                    help="SAIA API endpoint URL (falls back to env SAIA_API_ENDPOINT).")
     ap.add_argument("--test", action="store_true", help="Annotate only the first 5 papers.")
     args = ap.parse_args()
-    run(args.model, args.run, args.prompt_template, args.papers_csv, args.test)
+    run(args.model, args.run, args.prompt_template, args.papers_csv, args.test,
+        api_key=args.saia_api_key, base_url=args.saia_api_endpoint)
 
 
 if __name__ == "__main__":

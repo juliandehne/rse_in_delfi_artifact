@@ -30,23 +30,23 @@ Paradigms in the DELFI Community}
 \maketitle
 
 \begin{abstract}
-This artifact accompanies the DELFI~2026 paper \emph{Research Software Engineering
-in the Learning Technologies: a replication study of research paradigms in the
-DELFI community}. It provides a self-contained, file-based pipeline that
-reproduces the study's label aggregation, inter-coder reliability (ICR) metrics,
-descriptive figures and secondary bias analysis directly from the shipped
-intermediate data --- \emph{without} access to the copyrighted DELFI paper PDFs
-or to a commercial LLM API. The six pipeline steps are orchestrated by a single
-management script; the two steps that require the paper texts (preprocessing,
-human re-annotation) and the one that requires an LLM API token (the experiments)
-are skipped by default. A programmatic guard enforces that no paper full text is
-ever contained in the released data. We describe the artifact's structure, how to
-run it, the reproducibility guarantees, and the constraints that motivated its
-design for the artifact-evaluation track.
+This artifact is a \emph{dataset publication} accompanying the DELFI~2026 paper
+\emph{Research Software Engineering in the Learning Technologies: a replication
+study of research paradigms in the DELFI community}. It releases the full set of
+intermediate datasets behind the study --- the LLM annotation runs, the within-
+and cross-model aggregated labels, the human re-annotations, the reference-study
+evaluation, and the derived figures and tables --- together with the pipeline that
+produces them. Every published number and figure is reproducible from the shipped
+datasets alone, \emph{without} the copyrighted DELFI paper PDFs or a commercial
+LLM API; the steps that consume those sources are optional, because their outputs
+are themselves published as datasets. A programmatic guard enforces that no paper
+full text is ever contained in the released data. We describe the released
+datasets, the pipeline that regenerates them, the reproducibility guarantees, and
+the constraints that motivated the design for the artifact-evaluation track.
 \end{abstract}
 
 {\small
-\noindent\textbf{Resource Type:} Software (with an accompanying data set)\\
+\noindent\textbf{Resource Type:} Data set (with an accompanying software pipeline)\\
 \noindent\textbf{License:} Code: MIT; Data: CC-BY-4.0\\
 \noindent\textbf{Stable ID:} \emph{archival DOI to be minted on Zenodo before camera-ready} (e.g.\ \texttt{10.5281/zenodo.XXXXXXX})\\
 \noindent\textbf{Repository:} \url{https://github.com/juliandehne/rse_in_delfi_artifact}
@@ -72,18 +72,21 @@ is explicitly built so that the two paper-dependent steps and the API-dependent
 step can be skipped while still reproducing every published number and figure.
 
 \section{Artifact overview}
-The artifact is a Python package (\texttt{pipeline/}: \texttt{config}, the six steps
-and a full-text guard), the management script \texttt{run\_pipeline.py}, the shipped
-intermediate data (\texttt{data/}) and this paper (\texttt{artifact-paper/}). It is
-database-free: whereas the original study stored papers in MySQL, every step reads
-and writes CSV files under \texttt{data/}. We target the \emph{Available} and
-\emph{Reusable} badges: the package is archived, documented and parameterised so it
-can be re-run on new inputs.
+The primary artifact is the dataset collection under \texttt{data/} (enumerated in
+the abstract). Accompanying it are a Python package (\texttt{pipeline/}:
+\texttt{config}, the six steps and a full-text guard) and the management script
+\texttt{run\_pipeline.py}, which regenerate those datasets and figures from one
+another; every published number and figure is reproducible from the shipped
+datasets alone. We target the data \emph{Available} and \emph{Reusable} badges: the
+datasets are archived, openly licensed, documented with a data dictionary, and
+accompanied by the code that regenerates them.
 
 \section{The pipeline}
-The pipeline has six steps (Table~\ref{tab:steps}). Steps~3, 5 and~6 run from the
-shipped data and constitute the default reviewer run; steps~1, 2 and~4 are
-\emph{skipped by default} because they need resources reviewers do not have.
+The pipeline has six steps (Table~\ref{tab:steps}); each step's output is a
+published dataset. Steps~3, 5 and~6 regenerate their datasets from the shipped data
+and run by default. Steps~1, 2 and~4 are \emph{optional}: their outputs are already
+published, so they need only be re-run to rebuild those datasets from the original
+paper PDFs (steps~1 and~4) or the LLM API (step~2).
 
 \begin{table}[h]
 \centering
@@ -93,10 +96,10 @@ shipped data and constitute the default reviewer run; steps~1, 2 and~4 are
 \toprule
 \# & Step & Default & Requires \\
 \midrule
-1 & Preprocessing (PDF $\rightarrow$ text)      & \textbf{skipped} & paper PDF folder \\
-2 & LLM experiments                              & \textbf{skipped} & SAIA/KISSKI API token \\
+1 & Preprocessing (PDF $\rightarrow$ text)      & \textbf{optional} & paper PDF folder \\
+2 & LLM experiments                              & \textbf{optional} & SAIA/KISSKI API token \\
 3 & Descriptive analysis (figures)               & runs             & shipped data \\
-4 & Human re-annotation                          & \textbf{skipped} & paper PDF folder (interactive) \\
+4 & Human re-annotation                          & \textbf{optional} & paper PDF folder (interactive) \\
 5 & Label aggregation (intra + inter, ICR)       & runs             & shipped data \\
 6 & Secondary analysis (paradigm biases)         & runs             & shipped data \\
 \bottomrule
@@ -114,23 +117,16 @@ steps~1/4 and \texttt{-{}-run-experiments} (with a SAIA token) enables step~2. T
 no-full-text guard runs before and after every invocation.
 
 \section{Reproducing the results}
-\begin{verbatim}
-python -m pip install -r requirements.txt
-python run_pipeline.py            # steps 3, 5, 6 from shipped data
-\end{verbatim}
-This regenerates \texttt{data/inter\_LLM/df\_llm\_experiments\_final\_aggregated\_*.csv}
-($798\times185$), the ICR tables, the paradigm-distribution and label-trend figures,
-and the combined-label bias tables.
-
-\section{Reproduced results}
-Step~5, run on the shipped data, recomputes the cross-model inter-coder reliability
-as Krippendorff's $\alpha$~\cite{krippendorff2004reliability} (binary labels
-complemented by Gwet's AC1~\cite{gwet2008ac1} in the released tables): average
-$\alpha=0.51$ for the binary labels, $0.66$ for the ordinal labels and $0.60$
-overall, with $\alpha=0.33$ against the 2017 reference study (binary). All three
-models disagreed completely on 0, 6, 17 and 9 papers for the process, outcome,
-design and acceptance paradigms respectively; those cases were resolved with the
-shipped human labels.
+After \texttt{pip install -r requirements.txt}, \texttt{python run\_pipeline.py}
+regenerates --- from the shipped data, with no PDFs or API key --- the final
+aggregated dataset ($798\times185$), the ICR tables, the paradigm-distribution and
+label-trend figures, and the combined-label bias tables. The recomputed cross-model
+inter-coder reliability is Krippendorff's
+$\alpha$~\cite{krippendorff2004reliability} (binary labels complemented by Gwet's
+AC1~\cite{gwet2008ac1}): average $\alpha=0.51$ (binary), $0.66$ (ordinal) and $0.60$
+overall, with $\alpha=0.33$ against the 2017 reference study. The three models
+disagreed completely on 0, 6, 17 and 9 papers for the process, outcome, design and
+acceptance paradigms; those cases were resolved with the shipped human labels.
 
 \section{Data and the no-full-text guarantee}
 The released data contain only labels, LLM/human justifications and bibliographic
