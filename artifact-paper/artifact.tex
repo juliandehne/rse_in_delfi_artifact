@@ -1,0 +1,181 @@
+% !TeX encoding = UTF-8
+% !TeX program = pdflatex
+% !BIB program = biber
+%
+% LNI (Lecture Notes in Informatics, Gesellschaft für Informatik) artifact paper.
+% Build requires the GI LNI document class (lni.cls) and biber; see README.md.
+% Modelled on the LNI setup used in publications/pub_rse_methodology (_quarto-lni.yml).
+%
+\documentclass[english,biblatex]{lni}
+
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{url}
+
+\addbibresource{artifact.bib}
+
+\begin{document}
+
+\title[RSE in the DELFI Community --- Artifact]{%
+Artifact: A Reproducible, Database-Free Pipeline for Detecting Research-Software
+Paradigms in the DELFI Community}
+
+% LNI author interface (authblk-style): \author[affil#]{name}{email}{orcid}
+\author[1]{Julian Dehne}{dehne3@uni-potsdam.de}{0000-0001-9265-9619}
+\author[2]{Fabian Lochner}{fabian.lochner@example.org}{}
+\author[1]{Axel Wiepke}{axel.wiepke@uni-potsdam.de}{}
+\affil[1]{University of Potsdam, An der Bahn 2, 14476 Potsdam, Germany}
+\affil[2]{Affiliation of the second author}
+
+\maketitle
+
+\begin{abstract}
+This artifact accompanies the DELFI~2026 paper \emph{Research Software Engineering
+in the Learning Technologies: a replication study of research paradigms in the
+DELFI community}. It provides a self-contained, file-based pipeline that
+reproduces the study's label aggregation, inter-coder reliability (ICR) metrics,
+descriptive figures and secondary bias analysis directly from the shipped
+intermediate data --- \emph{without} access to the copyrighted DELFI paper PDFs
+or to a commercial LLM API. The six pipeline steps are orchestrated by a single
+management script; the two steps that require the paper texts (preprocessing,
+human re-annotation) and the one that requires an LLM API token (the experiments)
+are skipped by default. A programmatic guard enforces that no paper full text is
+ever contained in the released data. We describe the artifact's structure, how to
+run it, the reproducibility guarantees, and the constraints that motivated its
+design for the artifact-evaluation track.
+\end{abstract}
+
+\begin{keywords}
+Research Software Engineering \and replication \and large language models \and
+inter-coder reliability \and reproducibility \and DELFI
+\end{keywords}
+
+\section{Introduction}
+The companion study~\cite{dehne2026rseLearningTechnologies} replicates and extends
+a 2017 analysis of research-software paradigms across the DELFI proceedings, using
+three open-weight large language models (LLMs) to annotate $n=798$ papers and
+validating the result against the earlier human-coded reference study. This artifact packages the \emph{evidence and
+the computation} behind those results so that a reviewer can re-run the analysis
+end-to-end on a laptop in minutes.
+
+The central design constraint is legal: the analyzed DELFI papers are copyrighted
+and may not be redistributed. The artifact therefore ships only derived data
+(LLM labels, justifications, human re-annotations and bibliographic metadata) and
+is explicitly built so that the two paper-dependent steps and the API-dependent
+step can be skipped while still reproducing every published number and figure.
+
+\section{Artifact overview}
+The artifact is a Python package (\texttt{pipeline/}) plus shipped intermediate
+data (\texttt{data/}) and this paper (\texttt{artifact-paper/}). It is database-free:
+whereas the original study stored papers in MySQL, every step here reads and writes
+CSV files under \texttt{data/}. We claim the \emph{Available} and \emph{Reusable}
+properties: the package is permanently archived, documented, and parameterised so
+that it can also be re-run on new inputs.
+
+\section{Repository structure}
+\begin{verbatim}
+rse_in_delfi_artifact/
+  run_pipeline.py         # management script (skip-aware)
+  pipeline/               # config + the six steps + full-text guard
+  data/                   # shipped intermediate products (no full texts)
+  artifact-paper/         # this LNI document
+\end{verbatim}
+
+\section{The pipeline}
+The pipeline has six steps (Table~\ref{tab:steps}). Steps~3, 5 and~6 run from the
+shipped data and constitute the default reviewer run; steps~1, 2 and~4 are
+\emph{skipped by default} because they need resources reviewers do not have.
+
+\begin{table}[h]
+\centering
+\caption{Pipeline steps and default execution policy.}
+\label{tab:steps}
+\begin{tabular}{clll}
+\toprule
+\# & Step & Default & Requires \\
+\midrule
+1 & Preprocessing (PDF $\rightarrow$ text)      & \textbf{skipped} & paper PDF folder \\
+2 & LLM experiments                              & \textbf{skipped} & SAIA/KISSKI API token \\
+3 & Descriptive analysis (figures)               & runs             & shipped data \\
+4 & Human re-annotation                          & \textbf{skipped} & paper PDF folder (interactive) \\
+5 & Label aggregation (intra + inter, ICR)       & runs             & shipped data \\
+6 & Secondary analysis (paradigm biases)         & runs             & shipped data \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Data flow.} Step~1 extracts text from the paper PDFs; step~2 sends each
+paper to three LLMs (three runs each) via the KISSKI SAIA API and stores the
+labels and justifications. Step~5a aggregates the three runs per model
+(majority vote) and computes intra-model ICR; step~4 elicits a human label for the
+papers on which all three models disagree; step~5b aggregates across models
+(majority vote, ties broken by the human label), reports cross-model ICR and
+validates against the 2017 reference study. Steps~3 and~6 produce the figures and
+the secondary bias analysis from the final aggregated labels.
+
+\paragraph{Management script.} \texttt{run\_pipeline.py} runs the default steps,
+accepts \texttt{-{}-paper-folder} as a parameter to enable steps~1 and~4, and
+\texttt{-{}-run-experiments} (with a SAIA token in the environment) to enable
+step~2. A no-full-text guard runs before and after every invocation.
+
+\section{Reproducing the results}
+\begin{verbatim}
+python -m pip install -r requirements.txt
+python run_pipeline.py            # steps 3, 5, 6 from shipped data
+\end{verbatim}
+This regenerates \texttt{data/inter\_LLM/df\_llm\_experiments\_final\_aggregated\_*.csv}
+($798\times185$), the ICR tables, the paradigm-distribution and label-trend figures,
+and the combined-label bias tables.
+
+\section{Reproduced results}
+Table~\ref{tab:icr} shows the cross-model ICR recomputed by step~5 on the shipped
+data, reported as Krippendorff's $\alpha$~\cite{krippendorff2004reliability} (and,
+for binary labels, complemented by Gwet's AC1~\cite{gwet2008ac1} in the released
+tables). All three models disagreed completely on 0, 6, 17 and 9 papers for the
+process, outcome, design and acceptance paradigms respectively; those cases were
+resolved with the shipped human labels.
+
+\begin{table}[h]
+\centering
+\caption{Cross-model inter-coder reliability (Krippendorff's $\alpha$), recomputed.}
+\label{tab:icr}
+\begin{tabular}{lc}
+\toprule
+Label group & Krippendorff's $\alpha$ \\
+\midrule
+Binary labels (average)  & 0.51 \\
+Ordinal labels (average) & 0.66 \\
+All labels (average)     & 0.60 \\
+\midrule
+Reference-study validation (binary, average) & 0.33 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Data and the no-full-text guarantee}
+The released data contain only labels, LLM/human justifications and bibliographic
+metadata. The original annotation script dropped the \texttt{abstract},
+\texttt{text} and \texttt{references} columns before persisting results ``for legal
+reasons''; the artifact preserves this invariant and enforces it programmatically.
+\texttt{pipeline/fulltext\_guard.py} scans every shipped table and fails if a banned
+full-text column is present or if any cell exceeds a length threshold incompatible
+with a short justification. Step~1's full-text output is written only to a
+\texttt{.gitignore}'d directory.
+
+\section{Requirements and environment}
+Python~3.11+, \texttt{pandas}, \texttt{numpy}, \texttt{scikit-learn},
+\texttt{krippendorff}, \texttt{statsmodels}, \texttt{matplotlib} and
+\texttt{openpyxl}; see \texttt{requirements.txt}. \texttt{pymupdf} is needed only to
+re-run step~1, and an OpenAI-compatible client plus a SAIA token only to re-run
+step~2.
+
+\section{Limitations}
+Steps~1 and~2 cannot be exercised by reviewers without the copyrighted PDFs and an
+API token; their outputs are shipped and verified downstream instead. LLM
+annotations are sampled at temperature~0 with a fixed seed, but exact
+reproducibility of step~2 ultimately depends on the provider's model snapshots.
+
+\nocite{rseInDelfiArtifact}
+\printbibliography
+
+\end{document}

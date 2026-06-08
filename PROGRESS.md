@@ -113,9 +113,17 @@ and fails if a banned text column appears or any cell exceeds the length thresho
 - [x] pipeline/step2_experiments.py (skip default; needs token; reads step-1 CSV not MySQL)
 - [x] pipeline/step4_human_annotation.py (notebook → console; skip default) — TESTED (subset 29/32)
 - [x] run_pipeline.py management script (skip defaults: step1, step2, step4) — TESTED end-to-end
-- [ ] artifact-paper/ LNI LaTeX   ← IN PROGRESS
+- [x] artifact-paper/ LNI LaTeX — BUILDS CLEAN (pdflatex 0 errors, biber 0, 4 pages)
 - [x] smoke-test runnable steps (3,5,6) against shipped data/
-- [ ] commit + push artifact repo; (ask before bumping parent submodule pointers)
+- [x] commit pipeline + data + paper to artifact repo
+- [ ] push artifact repo to origin (needs SSH agent); ask before bumping parent submodule pointers
+
+### artifact-paper build note (this machine)
+MiKTeX needed updates to build the LNI paper: ltxbase, footmisc, l3kernel, biblatex,
+etoolbox (kernel↔footmisc↔biblatex version skew), and biber 2.19→2.21
+(biber-windows-x64; biblatex now writes bcf v3.11). After that: `make` in artifact-paper/
+(pdflatex → biber → pdflatex×2) produces artifact.pdf. Author block uses the lni.cls
+authblk interface: \author[affil#]{name}{email}{orcid} + \affil[#]{...} (NOT LLNCS \institute).
 
 ### Verified facts (for resume)
 - `publications/` is itself a submodule (git@github.com:juliandehne/publications.git); the

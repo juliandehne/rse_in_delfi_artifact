@@ -8,6 +8,16 @@ venv/
 # Secrets / tokens (SAIA / KISSKI)
 .env
 
+# LaTeX build intermediates (keep artifact.tex/.bib/.pdf)
+*.aux
+*.bcf
+*.bbl
+*.blg
+*.log
+*.out
+*.run.xml
+*.toc
+
 # OS
 .DS_Store
 Thumbs.db
