@@ -23,6 +23,18 @@ class). Obtain it once, then build:
    pdflatex artifact && biber artifact && pdflatex artifact && pdflatex artifact
    ```
 
+   On **Windows**, use the PowerShell equivalent of the Makefile instead:
+
+   ```powershell
+   pwsh ./build.ps1            # pdflatex → biber → pdflatex × 2
+   pwsh ./build.ps1 -Clean     # remove intermediates
+   ```
+
+   `build.ps1` deliberately compiles with the TinyTeX distribution that Quarto
+   manages (`%APPDATA%\TinyTeX`), not the system MiKTeX on `PATH` — the latter has a
+   version-mismatched kernel that fails on recent packages. Override the engine
+   location with `-TexBinDir` if needed.
+
 Output: `artifact.pdf`.
 
 ## Notes
