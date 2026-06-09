@@ -93,6 +93,5 @@ Pass `--models <id>` to restrict to one model.
 > `llama-3.3-70b-instruct` (the `llama-3.1-sauerkrautlm-70b-instruct` used for the
 > shipped labels was deprecated by the provider; see `pub_rse_methodology/ieee.qmd`).
 
-See [`PROGRESS.md`](PROGRESS.md) for the build plan and source mapping,
-[`data/README.md`](data/README.md) for the data dictionary, and
+See [`data/README.md`](data/README.md) for the data dictionary, and
 [`artifact-paper/`](artifact-paper/) for the LNI-formatted artifact description.

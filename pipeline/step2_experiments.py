@@ -96,6 +96,34 @@ def extract_json_from_response(raw: str) -> dict:
     raise json.JSONDecodeError("No valid JSON object found", cleaned, 0)
 
 
+class ModelUnavailableError(RuntimeError):
+    """Raised when the requested model is not reachable on the SAIA endpoint."""
+
+
+def assert_model_available(client, model: str) -> None:
+    """Verify ``model`` is reachable before annotating.
+
+    Queries the SAIA ``GET /models`` endpoint (the OpenAI/OpenAPI standard, exposed
+    via ``client.models.list()``) and checks that ``model`` is in the returned list.
+    Models get deprecated/removed by the provider, so a run can otherwise fail only
+    after the first slow per-paper request — this fails fast with a clear message
+    listing what *is* available.
+    """
+    try:
+        available = [m.id for m in client.models.list().data]
+    except Exception as exc:  # network/auth/endpoint errors — surface them clearly
+        raise ModelUnavailableError(
+            f"Could not query the SAIA /models endpoint to verify '{model}'. "
+            f"Check SAIA_API_ENDPOINT / SAIA_API_KEY and connectivity. Underlying "
+            f"error: {type(exc).__name__}: {exc}") from exc
+    if model not in available:
+        listed = ", ".join(sorted(available)) or "(none returned)"
+        raise ModelUnavailableError(
+            f"Model '{model}' is not reachable on the SAIA endpoint (likely deprecated "
+            f"or renamed by the provider). Available models: {listed}. Update the model "
+            f"id in pipeline/config.py (LIVE_MODELS) or pass a reachable --model.")
+
+
 def classify_paper(client, row, model, system_prompt, user_prompt_template, rate_limiter,
                    temperature=0, seed=42, top_p=1.0):
     from openai import APITimeoutError, RateLimitError  # local import: optional dep
@@ -157,6 +185,11 @@ def run(model: str, run_id: str, prompt_template: Path | None = None,
     client = OpenAI(api_key=api_key, base_url=base_url, timeout=300.0)
     rl = RateLimiter()
 
+    # Fail fast if the provider has deprecated/removed this model, instead of
+    # discovering it mid-run after the first per-paper request.
+    assert_model_available(client, model)
+
+    print("classifying papers with model: ", model)
     rows = []
     for _, row in df.iterrows():
         res = classify_paper(client, row, model, system_prompt, user_prompt_template, rl)

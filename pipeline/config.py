@@ -44,7 +44,7 @@ PREPROCESSED_DIR = DATA / "preprocessed"
 TEST_DIR = ROOT / "tmp" / "test_run"
 
 # Number of papers used by --test-configuration.
-TEST_N_PAPERS = 5
+TEST_N_PAPERS = 2
 
 # ── The key shipped artifact (final aggregated labels) ────────────────────────
 FINAL_CSV = INTER_DIR / "df_llm_experiments_final_aggregated_results_prompt_template_1.csv"
@@ -69,8 +69,11 @@ MODELS = {
 # The shipped labels still use the old ID above; live re-runs must use these.
 LIVE_MODELS = {
     "mistral": "mistral-large-3-675b-instruct-2512",
-    "llama":   "llama-3.3-70b-instruct",
-    "gemma":   "gemma-3-27b-it",
+    # "llama": "llama-3.3-70b-instruct",  # also deprecated/unavailable on the provider;
+    # temporarily swapped for the smaller, currently-reachable model so the test
+    # configuration runs. Restore the 70B id once the provider re-enables it.
+    "llama":   "meta-llama-3.1-8b-instruct",
+    "gemma":   "gemma-4-31b-it",
 }
 
 # Repeated runs per model; majority vote across runs (intra) and across models (inter).

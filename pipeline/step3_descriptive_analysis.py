@@ -133,7 +133,7 @@ def get_replication_all_binary1(df_replication):
 
 
 # ── Coordinate formula ──────────────────────────────────────────────────────────
-
+## this computes the position of a paper between the two poles of the paradigm (normalizing -1 to 1 range)
 def paradigm_contrast(a, b):
     a, b = np.asarray(a, dtype=float), np.asarray(b, dtype=float)
     result = np.zeros_like(a)

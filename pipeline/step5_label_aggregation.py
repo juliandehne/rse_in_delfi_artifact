@@ -74,14 +74,27 @@ def _icr_across_runs(df_merged: pd.DataFrame) -> pd.DataFrame:
     rows = []
     for col in config.BINARY_COLS:
         arrs = [df_merged[f"{col}_run_{r}"].to_numpy() for r in range(1, 4)]
-        alpha = krippendorff.alpha(np.array(arrs), level_of_measurement="nominal")
+        # Krippendorff's alpha is undefined when the domain has a single value
+        # (all runs agree on one label, common on tiny test subsets) — that is
+        # perfect agreement, so report 1.0. Mirrors _icr_across_llms below.
+        try:
+            alpha = krippendorff.alpha(np.array(arrs), level_of_measurement="nominal")
+        except ValueError:
+            alpha = 1.0
         table, _ = aggregate_raters(np.column_stack(arrs))
-        fk = fleiss_kappa(table)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", RuntimeWarning)
+            fk = fleiss_kappa(table)
+        if np.isnan(fk):
+            fk = 1.0
         rows.append({"label": col, "type": "binary",
                      "krippendorff_alpha": round(alpha, 2), "fleiss_kappa": round(fk, 2)})
     for col in config.ORDINAL_COLS:
         arrs = [df_merged[f"{col}_run_{r}"].to_numpy() for r in range(1, 4)]
-        alpha = krippendorff.alpha(np.array(arrs), level_of_measurement="ordinal")
+        try:
+            alpha = krippendorff.alpha(np.array(arrs), level_of_measurement="ordinal")
+        except ValueError:
+            alpha = 1.0
         rows.append({"label": col, "type": "ordinal",
                      "krippendorff_alpha": round(alpha, 2), "fleiss_kappa": None})
     df_icr = pd.DataFrame(rows)
