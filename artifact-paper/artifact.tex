@@ -64,7 +64,7 @@ Inter-Coder Reliability \and Reproducibility \and DELFI
 
 \section{Introduction}
 The companion study~\cite{dehne2026rseLearningTechnologies} replicates and extends
-a 2017 analysis of research-software paradigms across the DELFI proceedings, using
+a 2017 analysis of research software paradigms across the DELFI proceedings, using
 three open-weight large language models (LLMs) to annotate $n=798$ papers and
 validating the result against the earlier human-coded reference study. This artifact packages the \emph{evidence and
 the computation} behind those results. The central design constraint is legal: the analyzed DELFI papers are copyrighted,
@@ -110,9 +110,9 @@ paper PDFs (steps~1 and~4) or the LLM API (step~2).
 
 \paragraph{Data flow.} Step~1 extracts text from the PDFs; step~2 annotates each
 paper with three LLMs (three runs each) via the SAIA API. Step~5a aggregates the
-runs per model (majority vote) with intra-model ICR; step~4 elicits a human label
+runs per model (majority vote) with \emph{intra}-LLM reliability; step~4 elicits a human label
 where all three models disagree; step~5b aggregates across models (majority vote,
-ties broken by the human label), reports cross-model ICR and validates against the
+ties broken by the human label), reports \emph{inter}-LLM reliability and validates against the
 2017 reference study. Steps~3 and~6 produce the figures and the bias analysis.
 \texttt{run\_pipeline.py} runs the default steps; \texttt{-{}-paper-folder} enables
 steps~1/4 and \texttt{-{}-run-experiments} (with a SAIA token) enables step~2.
@@ -120,8 +120,8 @@ steps~1/4 and \texttt{-{}-run-experiments} (with a SAIA token) enables step~2.
 \section{Reproducing the results}
 After \texttt{pip install -r requirements.txt}, \texttt{python run\_pipeline.py}
 regenerates --- from the shipped data, with no PDFs or API key --- the final
-aggregated dataset ($798\times185$), the ICR tables, the paradigm-distribution and
-label-trend figures, and the combined-label bias tables. If the paper pdfs and the SAIA
+aggregated dataset ($798\times185$), the ICR tables, the paradigm distribution and
+label trend figures, and the combined label bias tables. If the paper pdfs and the SAIA
 token are available, the full pipeline is reproducible.
 
 \section{Testing and AI Usage}
